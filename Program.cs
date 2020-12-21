@@ -21,11 +21,13 @@ namespace RunTheGlobe
 
       await new HeatmapDownloader(new ConsoleCookies()).LoadAround(2615, 6318, zoom);
 
-      GeoDecoder.GetPoints(activities[0], 2614, 6317, zoom, 512);
-
-      using (var combined = Drawer.CombineTiles(2614, 6317, 2617, 6320, zoom)) {
-        combined.Save(Path.Combine(rtg, "progress.png"));
+      using var combined = Drawer.CombineTiles(2614, 6317, 2617, 6320, zoom);
+      foreach (var a in activities) {
+        var points = GeoDecoder.GetPoints(a, 2614, 6317, zoom, 512);
+        Drawer.DrawPath(combined, points);
       }
+
+      combined.Save(Path.Combine(rtg, "progress.png"));
     }
   }
 

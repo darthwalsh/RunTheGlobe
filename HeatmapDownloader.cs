@@ -29,10 +29,8 @@ namespace RunTheGlobe
 
     Bitmap Blank() {
       var blank = new Bitmap(512, 512);
-      using (Graphics gfx = Graphics.FromImage(blank))
-      {
-        gfx.Clear(Color.Transparent);
-      }
+      using Graphics gfx = Graphics.FromImage(blank);
+      gfx.Clear(Color.Transparent);
       return blank;
     }
 
