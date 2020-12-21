@@ -20,10 +20,7 @@ namespace RunTheGlobe
       var accessJson = File.ReadAllText(Path.Combine(home, ".strava-cli", "access_token.json"));
       var access = JsonConvert.DeserializeObject<Dictionary<string, string>>(accessJson)["access_token"];
 
-      var authenticator = new StaticAuthenticator
-      {
-        AccessToken = access,
-      };
+      var authenticator = new StaticAuthenticator(access);
       var client = new Client(authenticator);
       Console.Error.WriteLine("Getting Activities");
       var activities = await client.Activities.GetAthleteActivitiesAfter(new DateTime(2020, 12, 1)); // TODO(v0) dynamic date
@@ -32,7 +29,7 @@ namespace RunTheGlobe
       var detailed = new List<Task<Activity>>();
       foreach (var a in activities)
       {
-        string poly = FileDatabase.GetPolyline(a.Id);
+        var poly = FileDatabase.GetPolyline(a.Id);
         if (poly == null)
         {
           Console.Error.WriteLine($"Downloading {a.Name} {a.StartDate}");
@@ -58,14 +55,18 @@ namespace RunTheGlobe
 
     class StaticAuthenticator : IAuthenticator
     {
-      public string AccessToken { get; set; }
+      string accessToken;
+
+      public StaticAuthenticator(string accessToken) {
+        this.accessToken = accessToken;
+      }
 
       public bool CanPreAuthenticate(IRestClient client, IRestRequest request, ICredentials credentials) => true;
       public Task PreAuthenticate(IRestClient client, IRestRequest request, ICredentials credentials)
       {
         return Task.Run(() =>
         {
-          request.AddHeader("Authorization", "Bearer " + AccessToken);
+          request.AddHeader("Authorization", "Bearer " + accessToken);
         });
       }
 
