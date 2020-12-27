@@ -13,17 +13,8 @@ namespace RunTheGlobe
   {
     public static async Task<List<string>> Run()
     {
-      // Not enough to use the read token from https://www.strava.com/settings/api ???
-      // Access Token from python strava-cli works
-      // TODO(app) use proper auth
-      var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      var accessJson = File.ReadAllText(Path.Combine(home, ".strava-cli", "access_token.json"));
-      var access = JsonConvert.DeserializeObject<Dictionary<string, string>>(accessJson)["access_token"];
-
-      var authenticator = new StaticAuthenticator(access);
-      var client = new Client(authenticator);
       Console.Error.WriteLine("Getting Activities");
-      var activities = await client.Activities.GetAthleteActivitiesAfter(new DateTime(2020, 12, 1)); // TODO(v0) dynamic date
+      var (activities, client) = await GetActiviesAfter(new DateTime(2020, 12, 1)); // TODO(v0) dynamic date
 
       var results = new List<string>();
       var detailed = new List<Task<Activity>>();
@@ -51,6 +42,25 @@ namespace RunTheGlobe
       }
 
       return results;
+    }
+
+    public static async Task<(List<ActivitySummary>, Client)> GetActiviesAfter(DateTime after)
+    {
+      var client = GetClient();
+      return (await client.Activities.GetAthleteActivitiesAfter(after), client);
+    }
+
+    static Client GetClient()
+    {
+      // Not enough to use the read token from https://www.strava.com/settings/api ???
+      // Access Token from python strava-cli works
+      // TODO(app) use proper auth
+      var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+      var accessJson = File.ReadAllText(Path.Combine(home, ".strava-cli", "access_token.json"));
+      var access = JsonConvert.DeserializeObject<Dictionary<string, string>>(accessJson)["access_token"];
+
+      var authenticator = new StaticAuthenticator(access);
+      return new Client(authenticator);
     }
 
     class StaticAuthenticator : IAuthenticator

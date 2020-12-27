@@ -16,8 +16,6 @@ namespace RunTheGlobe
 
   class HeatmapDownloader
   {
-    static HttpClient client = new HttpClient();
-
     Task<IDictionary<string, string>> cookies;
     string externalServer;
 
@@ -49,7 +47,7 @@ namespace RunTheGlobe
       try
       {
         Console.Error.WriteLine($"http GET {z}/{x}/{y}.png");
-        return new Bitmap(await client.GetStreamAsync(url.Uri));
+        return new Bitmap(await Program.client.GetStreamAsync(url.Uri));
       }
       catch (HttpRequestException e)
       {

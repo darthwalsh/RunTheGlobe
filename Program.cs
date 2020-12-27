@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace RunTheGlobe
 {
   class Program
   {
+    public static HttpClient client = new HttpClient();
     public static readonly string rtg = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rtg");
 
     static async Task Main(string[] args)
     {
+      if (args.FirstOrDefault() == "gpx") {
+        await GpxCopier.Run();
+        return;
+      }
+
       const int zoom = 14;
 
       // var activities = await ActivityDownloader.Run();
