@@ -49,6 +49,7 @@ namespace RunTheGlobe
 
     static async Task<string> DownloadGpx(long id)
     {
+      var start = DateTime.Now;
       Console.Error.WriteLine($"Opening browser to download {id}...");
 
       var psi = new ProcessStartInfo
@@ -56,15 +57,18 @@ namespace RunTheGlobe
         FileName = $"https://www.strava.com/activities/{id}/export_gpx",
         UseShellExecute = true,
       };
+
       var p = Process.Start(psi) ?? throw new InvalidOperationException();
       await p.WaitForExitAsync();
 
-      await Task.Delay(5000);
-
       var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-      var newest = new DirectoryInfo(downloads).GetFiles("*.gpx").OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
-
-      return newest?.FullName ?? throw new InvalidOperationException();
+      while (true) {
+        var newest = new DirectoryInfo(downloads).GetFiles("*.gpx").OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+        if (newest != null && newest.LastWriteTime > start) {
+          return newest?.FullName ?? throw new InvalidOperationException();
+        }
+        await Task.Delay(500);
+      }
     }
 
     static async Task<int> UploadGpx(string path, DateTime start)
