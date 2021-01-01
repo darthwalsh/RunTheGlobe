@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -21,20 +22,25 @@ namespace RunTheGlobe
 
       const int zoom = 14;
 
-      // var activities = await ActivityDownloader.Run();
+      var activities = await ActivityDownloader.Run(new DateTime(2020, 12, 1));
 
-      var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
+      // var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
 
       await new HeatmapDownloader(new ConsoleCookies()).LoadAround(2615, 6318, zoom);
 
       using var combined = Drawer.CombineTiles(2614, 6317, 2617, 6320, zoom);
+      combined.Save(Path.Combine(rtg, "combinedTiles.png"));
+
+      using Graphics gfx = Graphics.FromImage(combined);
+      gfx.Clear(Color.Transparent);
+
       foreach (var a in activities) {
         var points = GeoDecoder.GetPoints(a, 2614, 6317, zoom, 512);
         Drawer.DrawPath(combined, points);
       }
 
-      combined.Save(Path.Combine(rtg, "progress.png"));
+      combined.Save(Path.Combine(rtg, "progressMask.png"));
     }
   }
 

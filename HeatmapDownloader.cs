@@ -16,12 +16,12 @@ namespace RunTheGlobe
 
   class HeatmapDownloader
   {
-    Task<IDictionary<string, string>> cookies;
+    Lazy<Task<IDictionary<string, string>>> cookies;
     string externalServer;
 
     public HeatmapDownloader(IStravaCloudFrontCookies cookies)
     {
-      this.cookies = cookies.GetCookies();
+      this.cookies = new Lazy<Task<IDictionary<string, string>>>(cookies.GetCookies);
       this.externalServer = "c";
     }
 
@@ -35,7 +35,7 @@ namespace RunTheGlobe
     async Task<Bitmap> Load(int x, int y, int z)
     {
       var query = HttpUtility.ParseQueryString("v=19");
-      foreach (var (key, value) in await this.cookies)
+      foreach (var (key, value) in await this.cookies.Value)
       {
         query[key] = value;
       }

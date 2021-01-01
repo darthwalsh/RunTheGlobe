@@ -11,10 +11,10 @@ namespace RunTheGlobe
 {
   class ActivityDownloader
   {
-    public static async Task<List<string>> Run()
+    public static async Task<List<string>> Run(DateTime after)
     {
       Console.Error.WriteLine("Getting Activities");
-      var (activities, client) = await GetActiviesAfter(new DateTime(2020, 12, 1)); // TODO(v0) dynamic date
+      var (activities, client) = await GetActiviesAfter(after); // TODO(v0) save last date and reuse
 
       var results = new List<string>();
       var detailed = new List<Task<Activity>>();
@@ -31,7 +31,6 @@ namespace RunTheGlobe
           Console.Error.WriteLine($"Cached {a.Name} {a.StartDate} {a.Id}");
           results.Add(poly);
         }
-
       }
 
       Task.WaitAll(detailed.ToArray());
