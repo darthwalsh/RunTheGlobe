@@ -1,0 +1,24 @@
+body {
+  font-family: monospace;
+  margin: 0;
+  overflow-x: hidden;
+  font-size: 200%;
+}
+
+header {
+  display: flex;
+  align-items: center;
+}
+
+h1 {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0 0.5em;
+  font-size: 200%;
+}
+
+#topright > img {
+  right: 0;
+  height: 3em;
+  filter: invert(82%) sepia(14%) saturate(17%) hue-rotate(314deg) brightness(94%) contrast(87%);
+}
