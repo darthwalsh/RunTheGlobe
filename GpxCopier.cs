@@ -34,7 +34,9 @@ namespace RunTheGlobe
       switch (activities.Count)
       {
         case 0:
-          return null;
+          activities = await client.Activities.GetAthleteActivities(1, 1);
+          activity = activities.Single();
+          break;
         case 1:
           activity = activities.Single();
           Console.Error.WriteLine($"{activity.Id} {activity.StartDate:hh:mm tt} {activity.Distance / 1609:0.0}mi {activity.Name}");
