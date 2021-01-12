@@ -56,7 +56,7 @@ namespace RunTheGlobe
       // TODO(app) use proper auth
       var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
       var accessJson = File.ReadAllText(Path.Combine(home, ".strava-cli", "access_token.json"));
-      var access = JsonConvert.DeserializeObject<Dictionary<string, string>>(accessJson)["access_token"];
+      var access = (string)JsonConvert.DeserializeObject<Dictionary<string, object>>(accessJson)["access_token"];
 
       var authenticator = new StaticAuthenticator(access);
       return new Client(authenticator);

@@ -101,7 +101,15 @@ namespace RunTheGlobe
         RequestUri = new Uri("https://api.openstreetmap.org/api/0.6/gpx/create"),
       };
 
-      var userpass = File.ReadAllText(Path.Combine(Program.rtg, "osm.txt"));
+      string osmPath = Path.Combine(Program.rtg, "osm.txt");
+      string userpass;
+      if (File.Exists(osmPath)) {
+        userpass = File.ReadAllText(osmPath);
+      } else {
+        Console.WriteLine("Type OSM username:password");
+        userpass = Console.ReadLine() ?? throw new ArgumentNullException();
+        File.WriteAllText(osmPath, userpass); 
+      }
       string base64 = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(userpass));
       request.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64);
 
