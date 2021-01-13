@@ -28,7 +28,8 @@ namespace RunTheGlobe
     static async Task<(long, DateTime)?> GetActivity()
     {
       Console.Error.WriteLine("Getting Activities");
-      var (activities, client) = await ActivityDownloader.GetActiviesAfter(DateTime.Today);
+      var client = ActivityDownloader.GetClient();
+      var activities = await client.Activities.GetAthleteActivitiesAfter(DateTime.Today);
 
       ActivitySummary activity;
       switch (activities.Count)

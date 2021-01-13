@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -14,11 +15,14 @@ namespace RunTheGlobe
     public static async Task<List<string>> Run(DateTime after)
     {
       Console.Error.WriteLine("Getting Activities");
-      var (activities, client) = await GetActiviesAfter(after); // TODO(v0) save last date and reuse
+      var client = GetClient();
+
+      // TODO(v0) save last date and reuse
+      var activities = client.Activities.GetAllActivitiesAfter(after);
 
       var results = new List<string>();
       var detailed = new List<Task<Activity>>();
-      foreach (var a in activities)
+      await foreach (var a in activities)
       {
         var poly = FileDatabase.GetPolyline(a.Id);
         if (poly == null)
@@ -43,13 +47,7 @@ namespace RunTheGlobe
       return results;
     }
 
-    public static async Task<(List<ActivitySummary>, Client)> GetActiviesAfter(DateTime after)
-    {
-      var client = GetClient();
-      return (await client.Activities.GetAthleteActivitiesAfter(after), client);
-    }
-
-    static Client GetClient()
+    public static Client GetClient()
     {
       // Not enough to use the read token from https://www.strava.com/settings/api ???
       // Access Token from python strava-cli works
@@ -84,6 +82,20 @@ namespace RunTheGlobe
 
       public bool CanHandleChallenge(IHttpClient client, IHttpRequestMessage request, ICredentials credentials, IHttpResponseMessage response) => false;
       public Task HandleChallenge(IHttpClient client, IHttpRequestMessage request, ICredentials credentials, IHttpResponseMessage response) => throw new NotImplementedException();
+    }
+  }
+
+  public static class ActivityExtensions {
+    public static async IAsyncEnumerable<ActivitySummary> GetAllActivitiesAfter(this ActivityClient client, DateTime after) {
+      for (var page = 0; ; page++) {
+        var activities = await client.GetAthleteActivities(page, itemsPerPage: 30);
+        if (!activities.Any()) yield break;
+        foreach (var a in activities) {
+          if (a.StartDate >= after) {
+            yield return a;
+          }
+        }
+      }
     }
   }
 }

@@ -16,6 +16,13 @@ namespace RunTheGlobe
 
   class HeatmapDownloader
   {
+    public const string BLUE = "blue";
+    public const string BLUERED = "bluered";
+    public const string GRAY = "gray";
+    public const string HOT = "hot";
+    public const string PURPLE = "purple";
+    public static readonly string COLOR = BLUE;
+
     Lazy<Task<IDictionary<string, string>>> cookies;
     string externalServer;
 
@@ -39,7 +46,7 @@ namespace RunTheGlobe
       {
         query[key] = value;
       }
-      var url = new UriBuilder($"https://heatmap-external-{externalServer}.strava.com/tiles-auth/run/bluered/{z}/{x}/{y}.png")
+      var url = new UriBuilder($"https://heatmap-external-{externalServer}.strava.com/tiles-auth/run/{COLOR}/{z}/{x}/{y}.png")
       {
         Query = query.ToString(),
       };
@@ -66,13 +73,13 @@ namespace RunTheGlobe
       var tasks = Enumerable.Range(centerY - 1, 3).SelectMany(y =>
         Enumerable.Range(centerX - 1, 3)
         .Where(x => {
-          using var image = FileDatabase.GetHeatmap(x, y, z); // MAYBE expensive to create this?
+          using var image = FileDatabase.GetHeatmap(HeatmapDownloader.COLOR, x, y, z); // MAYBE expensive to create this?
           return image == null;
         })
         .Select(async x =>
         {
           using var image = await Load(x, y, z);
-          FileDatabase.SetHeatmap(x, y, z, image);
+          FileDatabase.SetHeatmap(HeatmapDownloader.COLOR, x, y, z, image);
         })
       ).ToArray();
 

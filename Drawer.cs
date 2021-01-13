@@ -14,7 +14,7 @@ namespace RunTheGlobe
       using var gfx = Graphics.FromImage(combined);
       for (var yy = 0; yy < dy; ++yy) {
         for (var xx = 0; xx < dx; ++xx) {
-          var b = FileDatabase.GetHeatmap(xx + x, yy + y, z);
+          var b = FileDatabase.GetHeatmap(HeatmapDownloader.COLOR, xx + x, yy + y, z);
           if (b != null) gfx.DrawImage(b, xx * 512, yy * 512);
         }
       }

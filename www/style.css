@@ -28,5 +28,5 @@ h1 {
 #activities {
   -webkit-mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
   mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
-  filter: hue-rotate(160deg);
+  filter: hue-rotate(255deg);
 }

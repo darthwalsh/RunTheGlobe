@@ -30,19 +30,19 @@ namespace RunTheGlobe
       File.WriteAllText(path, polyline);
     }
 
-    static string GetHeatmapPath(int tileX, int tileY, int z) =>
-      Path.Combine(rtgDb, "tiles", z.ToString(), tileX.ToString(), tileY + ".png");
+    static string GetHeatmapPath(string color, int tileX, int tileY, int z) =>
+      Path.Combine(rtgDb, "tiles", color, z.ToString(), tileX.ToString(), tileY + ".png");
 
-    public static Bitmap? GetHeatmap(int tileX, int tileY, int z)
+    public static Bitmap? GetHeatmap(string color, int tileX, int tileY, int z)
     {
-      var path = GetHeatmapPath(tileX, tileY, z);
+      var path = GetHeatmapPath(color, tileX, tileY, z);
       if (File.Exists(path)) return new Bitmap(path);
       return null;
     }
 
-    public static void SetHeatmap(int tileX, int tileY, int z, Bitmap image)
+    public static void SetHeatmap(string color, int tileX, int tileY, int z, Bitmap image)
     {
-      var path = GetHeatmapPath(tileX, tileY, z);
+      var path = GetHeatmapPath(color, tileX, tileY, z);
       Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new ArgumentNullException());
       image.Save(path);
     }

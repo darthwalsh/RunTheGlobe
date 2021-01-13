@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -22,9 +23,9 @@ namespace RunTheGlobe
 
       const int zoom = 14;
 
-      var activities = await ActivityDownloader.Run(new DateTime(2020, 12, 1));
+      // var activities = await ActivityDownloader.Run(new DateTime(2020, 7, 15));
 
-      // var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
+      var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
 
       await new HeatmapDownloader(new ConsoleCookies()).LoadAround(2615, 6318, zoom);
@@ -37,10 +38,21 @@ namespace RunTheGlobe
 
       foreach (var a in activities) {
         var points = GeoDecoder.GetPoints(a, 2614, 6317, zoom, 512);
-        Drawer.DrawPath(combined, points);
+        if (points.Any()) {
+          Drawer.DrawPath(combined, points);
+        }
       }
 
       combined.Save(Path.Combine(rtg, "progressMask.png"));
+
+      Console.WriteLine($"Wrote PNGs to {rtg}");
+
+      using var gsutil = Process.Start(new ProcessStartInfo{
+        FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
+        Arguments = $"cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
+        UseShellExecute = false,
+      })  ?? throw new ArgumentNullException();
+      await gsutil.WaitForExitAsync();
     }
   }
 
@@ -52,7 +64,7 @@ namespace RunTheGlobe
       var info = new FileInfo(path);
       string cookie;
       if (!info.Exists || info.LastWriteTime < DateTime.Now.Subtract(TimeSpan.FromHours(1))) {
-        Console.WriteLine("Go to https://www.strava.com/heatmap#15.19/-122.53029/38.01453/bluered/run and paste 6718.png HTTP cookie here");
+        Console.WriteLine("Go to https://www.strava.com/heatmap#15.19/-122.53029/38.01453/hot/run and paste 6718.png HTTP cookie here");
         cookie = Console.ReadLine() ?? throw new ArgumentNullException("No text entered!!");
         File.WriteAllText(path, cookie);
       } else {
