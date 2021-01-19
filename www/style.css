@@ -15,7 +15,9 @@ h1 {
   font-size: 200%;
 }
 
-#topright > img {
+#mapid { height: 180px; }
+
+/* #topright > img {
   right: 0;
   height: 3em;
   filter: invert(82%) sepia(14%) saturate(17%) hue-rotate(314deg) brightness(94%) contrast(87%);
@@ -29,4 +31,4 @@ h1 {
   -webkit-mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
   mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
   filter: hue-rotate(255deg);
-}
+} */

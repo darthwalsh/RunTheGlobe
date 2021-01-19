@@ -17,3 +17,9 @@ To upload i.e. https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.p
 gsutil cp (Resolve-Path ~/.rtg/progressMask.png) gs://webfiles-rtg-carlwa
 gsutil cp (Resolve-Path ~/.rtg/combinedTiles.png) gs://webfiles-rtg-carlwa
 ```
+
+Uploading heatmap:
+
+```shell
+cd \.rtg\db; gsutil cp -r tiles gs://webfiles-rtg-carlwa/
+```
