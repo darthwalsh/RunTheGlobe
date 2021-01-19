@@ -23,7 +23,7 @@ namespace RunTheGlobe
 
       const int zoom = 14;
 
-      // var activities = await ActivityDownloader.Run(new DateTime(2020, 7, 15));
+      await ActivityDownloader.Run(new DateTime(2021, 1, 1));
 
       var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
