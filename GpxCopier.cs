@@ -86,7 +86,7 @@ namespace RunTheGlobe
       using var file = new StreamContent(gxp);
       multiContent.Add(file, "file", Path.GetFileName(path));
 
-      using var description = new StringContent($"Run ${start:yyyy-MM-dd} looking for paths");
+      using var description = new StringContent($"Run {start:yyyy-MM-dd} looking for paths");
       multiContent.Add(description, "description");
 
       using var tags = new StringContent("");
