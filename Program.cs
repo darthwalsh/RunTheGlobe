@@ -17,7 +17,7 @@ namespace RunTheGlobe
     static async Task Main(string[] args)
     {
       if (args.FirstOrDefault() == "gpx") {
-        await GpxCopier.Run();
+        await GpxCopier.Run(args.Skip(1).ToArray());
         return;
       }
 

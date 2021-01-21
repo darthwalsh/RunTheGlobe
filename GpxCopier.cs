@@ -11,9 +11,14 @@ namespace RunTheGlobe
 {
   class GpxCopier
   {
-    public static async Task Run()
+    public static async Task Run(string[] args)
     {
-      var activity = await GetActivity();
+      var daysBefore = 0;
+      if (args.Any()) {
+        daysBefore = int.Parse(args.First());
+      }
+
+      var activity = await GetActivity(daysBefore);
       if (activity == null)
       {
         Console.Error.WriteLine("No activities!!!");
@@ -25,11 +30,11 @@ namespace RunTheGlobe
       await StartEdit(osmId);
     }
 
-    static async Task<(long, DateTime)?> GetActivity()
+    static async Task<(long, DateTime)?> GetActivity(int daysBefore)
     {
       Console.Error.WriteLine("Getting Activities");
       var client = ActivityDownloader.GetClient();
-      var activities = await client.Activities.GetAthleteActivitiesAfter(DateTime.Today);
+      var activities = await client.Activities.GetAthleteActivitiesAfter(DateTime.Today - TimeSpan.FromDays(daysBefore));
 
       ActivitySummary activity;
       switch (activities.Count)
@@ -40,14 +45,29 @@ namespace RunTheGlobe
           break;
         case 1:
           activity = activities.Single();
-          Console.Error.WriteLine($"{activity.Id} {activity.StartDate:hh:mm tt} {activity.Distance / 1609:0.0}mi {activity.Name}");
+          Write(activity);
           break;
         default:
-          throw new NotImplementedException("Should create picker?");
+          Console.WriteLine("Choose: Write the number and press enter:");
+
+          for (var i = 0; i < activities.Count; ++i) {
+            Console.Write($"{i} ");
+            Write(activities[i]);
+          }
+          Console.WriteLine();
+
+          var choice = int.Parse(Console.ReadLine()?.Trim() ?? throw new ArgumentNullException());
+          activity = activities[choice];
+          break;
       }
 
 
       return (activity.Id, activity.StartDate);
+    }
+
+    static void Write(ActivitySummary activity)
+    {
+      Console.Error.WriteLine($"{activity.Id} {activity.StartDate:hh:mm tt} {activity.Distance / 1609:0.0}mi {activity.Name}");
     }
 
     static async Task<string> DownloadGpx(long id)
