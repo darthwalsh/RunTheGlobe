@@ -23,7 +23,7 @@ namespace RunTheGlobe
 
       const int zoom = 14;
 
-      await ActivityDownloader.Run(new DateTime(2021, 1, 1));
+      await ActivityDownloader.Run(new DateTime(2021, 1, 28));
 
       var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
@@ -49,7 +49,7 @@ namespace RunTheGlobe
 
       using var gsutil = Process.Start(new ProcessStartInfo{
         FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
-        Arguments = $"cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
+        Arguments = $"-h \"Cache-Control: no-cache\" cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
         UseShellExecute = false,
       })  ?? throw new ArgumentNullException();
       await gsutil.WaitForExitAsync();
