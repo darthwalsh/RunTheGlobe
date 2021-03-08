@@ -1,9 +1,11 @@
 # Run The Globe
 
-## Web TODO
+## Cloud setup
 
-Put my strava client id and secret into secret manager:\
-https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem
+Create [secrets](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem)
+`strava-client-id` and `strava-client-secret`
+
+## Web TODO
 
 https://github.com/JamesRandall/StravaAPIProxy/blob/master/routes/tokenExchange.js
 
