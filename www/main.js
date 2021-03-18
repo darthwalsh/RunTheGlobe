@@ -1,13 +1,16 @@
 "use strict";
 
 const STRAVA_CLIENT_ID = 57923;
+const TOKEN_EXCHANGE_URL = "https://us-central1-runtheglobe.cloudfunctions.net/stravaToken";
 
 const urlQuery = new URLSearchParams(window.location.search);
-const DEV_ENV = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) && !urlQuery.has("PROD_ENV");
+const DEV_ENV =
+  ["localhost", "127.0.0.1", ""].includes(window.location.hostname) && !urlQuery.has("PROD_ENV");
 if (DEV_ENV) {
   const favicon = document.querySelector("link[rel~='icon']");
   if (favicon) {
-    favicon.href = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20x='0'%20y='14'%3E🚀%3C/text%3E%3C/svg%3E";
+    favicon.href =
+      "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20x='0'%20y='14'%3E🚀%3C/text%3E%3C/svg%3E";
   }
 }
 
@@ -32,29 +35,29 @@ function create(parent, name, attributes = {}) {
   return node;
 }
 
-const accessTokenKey = "STRAVA_ACCESS_TOKEN_KEY";
+const oAuthTokenKey = "STRAVA_OAUTH_TOKEN_KEY";
 async function getStravaToken() {
-  let stored = localStorage.getItem(accessTokenKey);
+  let stored = localStorage.getItem(oAuthTokenKey);
   if (!stored) {
     const dialog = create(document.body, "dialog");
-    dialog.append("Sign in needed! We'll use this account to load your activities, and sync your data");
+    dialog.append(
+      "Sign in needed! We'll use this account to load your activities, and sync your data"
+    );
     create(dialog, "br");
 
     const query = new URLSearchParams({
       client_id: STRAVA_CLIENT_ID,
       redirect_uri: window.location.href,
       response_type: "code",
-      scope: "activity:read"
-    })
-    const url = 'https://www.strava.com/oauth/authorize?' + query;
-    const a = create(
-      dialog,
-      "a",
-      {href: url}
-    );
+      scope: "activity:read",
+    });
+    const url = "https://www.strava.com/oauth/authorize?" + query;
+    const a = create(dialog, "a", {href: url});
     a.textContent = "Sign in at strava.com";
     dialog.showModal();
-    await new Promise(() => { /* wait forever */ });
+    await new Promise(() => {
+      /* wait forever */
+    });
   }
   return stored;
 }
@@ -80,11 +83,7 @@ async function getCookieQuery() {
     /** @type {HTMLDialogElement} */
     const dialog = create(document.body, "dialog");
     dialog.append("Go to ");
-    const a = create(
-      dialog,
-      "a",
-      {href: "https://www.strava.com/heatmap", target: "_blank"}
-    );
+    const a = create(dialog, "a", {href: "https://www.strava.com/heatmap", target: "_blank"});
     a.textContent = "strava.com/heatmap";
     dialog.append(
       ", open browser devtools, capture a PNG network request, find Cookie request header, paste below:"
@@ -161,34 +160,59 @@ async function main() {
   strava.addTo(map);
 }
 
+async function tokenExchange(code) {
+  const options = {
+    method: "POST",
+    body: JSON.stringify({
+      token: code,
+    }),
+    headers: {"Content-Type": "application/json"},
+  };
+
+  const proxy = await fetch(TOKEN_EXCHANGE_URL, options);
+  return await proxy.json();
+}
+
+async function errorDialog(error) {
+  const dialog = create(document.body, "dialog");
+  dialog.append("ERROR!");
+  const pre = create(dialog, "pre");
+  pre.textContent = error;
+
+  const {origin, pathname} = window.location;
+  const a = create(dialog, "a", {href: origin + pathname});
+  a.textContent = "Go back";
+
+  dialog.showModal();
+  await new Promise(() => {
+    /* wait forever */
+  });
+}
+
 async function mainStravaRedirect() {
-  let error = urlQuery.get("error");
-  if (!error && !urlQuery.get("scope").includes("activity:read")) {
-    error = "Permission to read activities needed!"
+  const error = urlQuery.get("error");
+  if (error) throw errorDialog(error);
+
+  if (!urlQuery.get("scope").includes("activity:read")) {
+    throw errorDialog("Permission to read activities needed!");
   }
 
-  if (error) {
-    const dialog = create(document.body, "dialog");
-    dialog.append("ERROR!");
-    const pre = create(dialog, "pre");
-    pre.textContent = error;
-
-    const {origin, pathname} = window.location;
-    const a = create(
-      dialog,
-      "a",
-      {href: origin + pathname}
-    );
-    a.textContent = "Go back";
-
-    dialog.showModal();
-    await new Promise(() => { /* wait forever */ });
-  }
   const code = urlQuery.get("code");
-  
-  alert("TODO token exchange not done: " + code); 
 
-  //main();
+  const oauth = await tokenExchange(code);
+
+  if (oauth.errors) throw errorDialog(oauth.message);
+
+  localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
+
+  // TODO need a sign-out button, request to /deauthorize
+  alert(
+    "to log out of strava run devtools: localStorage.setItem(oAuthTokenKey, '')" +
+      oauth.access_token
+  );
+  window.history.pushState(null, "", location.href.split("?")[0]);
+
+  main();
 }
 
 if (urlQuery.has("error") || urlQuery.has("code")) {

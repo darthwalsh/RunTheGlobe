@@ -19,5 +19,6 @@
   "homepage": "https://github.com/darthwalsh/RunTheGlobe#readme",
   "devDependencies": {
     "firebase-tools": "^9.6.1"
-  }
+  },
+  "dependencies": {}
 }

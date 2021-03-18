@@ -2,12 +2,13 @@
 
 ## Cloud setup
 
-Create [secrets](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem)
-`strava-client-id` and `strava-client-secret`
+Create [secret](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem) `strava-client-secret` 
+
+    gcloud secrets add-iam-policy-binding strava-client-secret --role roles/secretmanager.secretAccessor --member serviceAccount:runtheglobe@appspot.gserviceaccount.com
+
+Publish [serverless function](functions/) for OAuth token exchange.
 
 ## Web TODO
-
-https://github.com/JamesRandall/StravaAPIProxy/blob/master/routes/tokenExchange.js
 
 https://firebase.google.com/docs/auth/web/custom-auth\
 https://firebase.google.com/docs/auth/admin/create-custom-tokens
