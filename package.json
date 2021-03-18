@@ -1,0 +1,23 @@
+{
+  "name": "RunTheGlobe",
+  "version": "1.0.0",
+  "description": "Create [secrets](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem)\r `strava-client-id` and `strava-client-secret`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darthwalsh/RunTheGlobe.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darthwalsh/RunTheGlobe/issues"
+  },
+  "homepage": "https://github.com/darthwalsh/RunTheGlobe#readme",
+  "devDependencies": {
+    "firebase-tools": "^9.6.1"
+  }
+}
