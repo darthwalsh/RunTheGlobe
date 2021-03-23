@@ -8,6 +8,7 @@ const firebaseConfig = {
   projectId: "runtheglobe",
 };
 firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
 
 const urlQuery = new URLSearchParams(window.location.search);
 const DEV_ENV =
@@ -65,7 +66,16 @@ async function getStravaToken() {
       /* wait forever */
     });
   }
-  return stored;
+  return JSON.parse(stored);
+}
+
+async function getActivities(stravaToken) {
+  const userDoc = firestore.collection("users").doc(stravaToken.firebaseUser);
+  const userSnapshot = await userDoc.get();
+  if (!userSnapshot.exists) {
+    // TODO need to create database entry!
+  }
+  return []; // TODO need to load from firestore!
 }
 
 const cookieKey = "STRAVA_COOKIE_KEY";
@@ -160,7 +170,8 @@ async function main() {
 
   L.control.scale().addTo(map);
 
-  await getStravaToken();
+  const stravaToken = await getStravaToken();
+  const activities = await getActivities(stravaToken);
 
   const strava = await addGlobal();
   strava.addTo(map);
@@ -213,8 +224,9 @@ async function mainStravaRedirect() {
 
   const firebaseUser = await firebase.auth().signInWithCustomToken(oauth.fireToken);
   delete oauth.fireToken;
-  oauth.firebaseUser = firebaseUser.user.uid
+  oauth.firebaseUser = firebaseUser.user.uid;
 
+  // .athlete contains user social data, including location/weight which shouldn't be public
   localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
 
   // TODO need a sign-out button, request to /deauthorize -- ALSO firebase sigh-out?
