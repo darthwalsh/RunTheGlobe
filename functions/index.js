@@ -1,8 +1,11 @@
+const admin = require('firebase-admin');
 const functions = require("firebase-functions");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const fetch = require("node-fetch");
+
+admin.initializeApp();
 
 const {SecretManagerServiceClient} = require("@google-cloud/secret-manager");
 const secretManagerClient = new SecretManagerServiceClient();
@@ -36,6 +39,12 @@ app.post("/", async (req, res) => {
 
     const proxy = await fetch("https://www.strava.com/oauth/token", options);
     const json = await proxy.json();
+
+    if (json.athlete && json.athlete.id) {
+      const fireToken = await admin.auth().createCustomToken(String(json.athlete.id));
+      json.fireToken = fireToken;
+    }
+
     res.send(json);
   } catch (e) {
     console.error(e);

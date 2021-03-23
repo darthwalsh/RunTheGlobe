@@ -5,13 +5,13 @@
 Create [secret](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem) `strava-client-secret` 
 
     gcloud secrets add-iam-policy-binding strava-client-secret --role roles/secretmanager.secretAccessor --member serviceAccount:runtheglobe@appspot.gserviceaccount.com
+    gcloud projects add-iam-policy-binding runtheglobe --member serviceAccount:runtheglobe@appspot.gserviceaccount.com --role roles/iam.serviceAccountTokenCreator
 
 Publish [serverless function](functions/) for OAuth token exchange.
 
 ## Web TODO
 
 https://firebase.google.com/docs/auth/web/custom-auth\
-https://firebase.google.com/docs/auth/admin/create-custom-tokens
 
 Then using strava Oauth, can store the cookie in i.e. firestore and sync to web client. Leaflet talks directly to heatmap with cookie.
 
