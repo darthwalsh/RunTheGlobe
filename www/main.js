@@ -3,6 +3,12 @@
 const STRAVA_CLIENT_ID = 57923;
 const TOKEN_EXCHANGE_URL = "https://us-central1-runtheglobe.cloudfunctions.net/stravaToken";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyB9o6sZw4ptiRAn7oZaxZAaV4QBW7frvcA",
+  projectId: "runtheglobe",
+};
+firebase.initializeApp(firebaseConfig);
+
 const urlQuery = new URLSearchParams(window.location.search);
 const DEV_ENV =
   ["localhost", "127.0.0.1", ""].includes(window.location.hostname) && !urlQuery.has("PROD_ENV");
@@ -203,13 +209,16 @@ async function mainStravaRedirect() {
 
   if (oauth.errors) throw errorDialog(oauth.message);
 
+  if (!oauth.fireToken) throw errorDialog("Google sign-in didn't work");
+
+  const firebaseUser = await firebase.auth().signInWithCustomToken(oauth.fireToken);
+  delete oauth.fireToken;
+  oauth.firebaseUser = firebaseUser.user.uid
+
   localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
 
-  // TODO need a sign-out button, request to /deauthorize
-  alert(
-    "to log out of strava run devtools: localStorage.setItem(oAuthTokenKey, '')" +
-      oauth.access_token
-  );
+  // TODO need a sign-out button, request to /deauthorize -- ALSO firebase sigh-out?
+  alert("to log out of strava run devtools: localStorage.setItem(oAuthTokenKey)");
   window.history.pushState(null, "", location.href.split("?")[0]);
 
   main();
