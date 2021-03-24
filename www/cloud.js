@@ -37,21 +37,25 @@ async function getStravaToken() {
   return JSON.parse(stored);
 }
 
-async function getActivities(stravaToken) {
-  const userDoc = firestore.collection("users").doc(stravaToken.firebaseUser);
-  const userSnapshot = await userDoc.get();
-  if (!userSnapshot.exists) {
-    // TODO need to create database entry!
-  }
-  return []; // TODO need to load from firestore!
+async function getUserDoc() {
+  const token = await getStravaToken();
+  return firestore.collection("users").doc(token.firebaseUser);
 }
 
-const cookieKey = "STRAVA_COOKIE_KEY";
-function getStoredCookie() {
-  let stored = localStorage.getItem(cookieKey);
-  if (!stored) return;
+async function getActivities() {
+  const userDoc = await getUserDoc();
+  const userSnapshot = await userDoc.get();
+  return []; // TODO need to load from strava -> firestore!
+}
 
-  const [last, cookie, extra] = stored.split(":");
+async function getStoredCookie() {
+  const userDoc = await getUserDoc();
+  const userSnapshot = await userDoc.get();
+  if (!userSnapshot.exists) return;
+  const data = userSnapshot.data();
+  if (!data.stravaCookie) return;
+
+  const [last, cookie, extra] = data.stravaCookie.split(":");
   if (!last || !cookie || !Number(last) || extra) return;
 
   const lastweek = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -62,7 +66,7 @@ function getStoredCookie() {
 
 // TODO need an account delete function for firebase strava data
 async function getCookieQuery() {
-  let cookieQuery = getStoredCookie();
+  let cookieQuery = await getStoredCookie();
   if (!cookieQuery) {
     /** @type {HTMLDialogElement} */
     const dialog = create(document.body, "dialog");
@@ -100,8 +104,9 @@ async function getCookieQuery() {
       .filter(s => s.startsWith(prefix))
       .map(s => s.substr(prefix.length))
       .join("&");
-
-    localStorage.setItem(cookieKey, `${Date.now()}:${cookieQuery}`);
+      
+    const userDoc = await getUserDoc();
+    userDoc.update({stravaCookie: `${Date.now()}:${cookieQuery}`});
   }
   return cookieQuery;
 }
@@ -139,10 +144,17 @@ async function mainStravaRedirect() {
   delete oauth.fireToken;
   oauth.firebaseUser = firebaseUser.user.uid;
 
-  // .athlete contains user social data, including location/weight which shouldn't be public
   localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
 
-  // TODO need a sign-out button, request to /deauthorize -- ALSO firebase sigh-out?
+  const userDoc = await getUserDoc();
+  const userSnapshot = await userDoc.get();
+  if (!userSnapshot.exists) {
+    userDoc.set({
+      athlete: oauth.athlete, // .athlete contains location/weight which shouldn't be public
+    });
+  }
+
+  // TODO need a sign-out button, request to /deauthorize -- ALSO firebase sign-out?
   alert("to log out of strava run devtools: localStorage.setItem(oAuthTokenKey)");
   window.history.pushState(null, "", location.href.split("?")[0]);
 

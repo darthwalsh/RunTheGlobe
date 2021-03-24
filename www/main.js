@@ -65,7 +65,7 @@ async function main() {
   L.control.scale().addTo(map);
 
   const stravaToken = await getStravaToken();
-  const activities = await getActivities(stravaToken);
+  const activities = await getActivities();
 
   const strava = await addGlobal();
   strava.addTo(map);
