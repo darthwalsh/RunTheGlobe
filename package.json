@@ -4,7 +4,8 @@
   "description": "Create [secrets](https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem)\r `strava-client-id` and `strava-client-secret`",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "python3 -m http.server"
   },
   "repository": {
     "type": "git",
