@@ -11,8 +11,6 @@ Publish [serverless function](functions/) for OAuth token exchange.
 
 ## Web TODO
 
-https://firebase.google.com/docs/auth/web/custom-auth\
-
 Then using strava Oauth, can store the cookie in i.e. firestore and sync to web client. Leaflet talks directly to heatmap with cookie.
 
 ### Request flow
