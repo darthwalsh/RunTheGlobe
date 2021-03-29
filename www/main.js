@@ -48,15 +48,27 @@ async function getGlobalHeatmap() {
 
 async function getRoutesLayer() {
   const routes = await getRoutes();
-  return L.layerGroup(
-    routes.map(r => L.polyline(L.PolylineUtil.decode(r.map.summary_polyline, 5), {
-      color: "DarkViolet",
-    }))
-  );
+  return L.layerGroup(routes.map(getRoutePolyline));
 }
 
+function getRoutePolyline(route) {
+  return L.polyline(L.PolylineUtil.decode(route.map.summary_polyline, 5), {
+    color: "DarkViolet",
+  }).on("click", e => {
+    const div = document.createElement("div");
+    const a = create(div, "a", {
+      href: `https://www.strava.com/routes/${route.id_str}`,
+      target: "_blank",
+    });
+    a.textContent = route.name;
+
+    map.openPopup(L.popup().setLatLng(e.latlng).setContent(a));
+  });
+}
+
+let map;
 async function main() {
-  const map = L.map("mapid");
+  map = L.map("mapid");
 
   const cycleLayer = L.tileLayer(
     "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
