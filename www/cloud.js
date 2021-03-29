@@ -11,7 +11,7 @@ firebase.initializeApp(firebaseConfig);
 const firestore = firebase.firestore();
 
 const oAuthTokenKey = "STRAVA_OAUTH_TOKEN_KEY";
-async function getStravaToken() {
+async function getStravaDetails() {
   let stored = localStorage.getItem(oAuthTokenKey);
   if (!stored) {
     const dialog = create(document.body, "dialog");
@@ -37,15 +37,57 @@ async function getStravaToken() {
   return JSON.parse(stored);
 }
 
+async function getStravaAccessToken() {
+  const {access_token, expires_at, refresh_token, athlete} = await getStravaDetails();
+
+  const fifteenBefore = new Date((expires_at - 15 * 60) * 1000);
+  if (new Date() < fifteenBefore) return access_token;
+
+  console.log("Refreshing access token...");
+  const oauth = await tokenExchange({refresh_token});
+  if (oauth.errors) {
+    localStorage.removeItem(oAuthTokenKey);
+    throw errorDialog(oauth.message);
+  }
+  oauth.athlete = athlete; // not returned on refresh
+  localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
+  return oauth.access_token;
+}
+
 async function getUserDoc() {
-  const token = await getStravaToken();
-  return firestore.collection("users").doc(token.firebaseUser);
+  const details = await getStravaDetails();
+  return firestore.collection("users").doc(String(details.athlete.id));
 }
 
 async function getActivities() {
   const userDoc = await getUserDoc();
   const userSnapshot = await userDoc.get();
   return []; // TODO need to load from strava -> firestore!
+}
+
+async function getRoutes() {
+  const token = await getStravaAccessToken();
+  const routes = [];
+
+  for (let page = 1; ; page++) {
+    const per_page = 30;
+    const query = new URLSearchParams({
+      page,
+      per_page,
+    });
+    const url = "https://www.strava.com/api/v3/athlete/routes?" + query;
+    
+    console.log('Fetching routes from strava API. Page', page);
+    const req = await fetch(url, {
+      headers: {"Authorization": `Bearer ${token}`},
+    });
+    const res = await req.json();
+    routes.push(...res);
+    if (res.length < per_page) {
+      break;
+    }
+  }
+  return routes;
 }
 
 async function getStoredCookie() {
@@ -104,19 +146,17 @@ async function getCookieQuery() {
       .filter(s => s.startsWith(prefix))
       .map(s => s.substr(prefix.length))
       .join("&");
-      
+
     const userDoc = await getUserDoc();
     userDoc.update({stravaCookie: `${Date.now()}:${cookieQuery}`});
   }
   return cookieQuery;
 }
 
-async function tokenExchange(code) {
+async function tokenExchange(body) {
   const options = {
     method: "POST",
-    body: JSON.stringify({
-      token: code,
-    }),
+    body: JSON.stringify(body),
     headers: {"Content-Type": "application/json"},
   };
 
@@ -134,16 +174,15 @@ async function mainStravaRedirect() {
 
   const code = urlQuery.get("code");
 
-  const oauth = await tokenExchange(code);
+  console.log("Getting initial token...");
+  const oauth = await tokenExchange({code});
 
   if (oauth.errors) throw errorDialog(oauth.message);
 
   if (!oauth.fireToken) throw errorDialog("Google sign-in didn't work");
 
-  const firebaseUser = await firebase.auth().signInWithCustomToken(oauth.fireToken);
+  await firebase.auth().signInWithCustomToken(oauth.fireToken);
   delete oauth.fireToken;
-  oauth.firebaseUser = firebaseUser.user.uid;
-
   localStorage.setItem(oAuthTokenKey, JSON.stringify(oauth));
 
   const userDoc = await getUserDoc();

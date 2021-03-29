@@ -32,7 +32,7 @@ function create(parent, name, attributes = {}) {
   return node;
 }
 
-async function addGlobal() {
+async function getGlobalHeatmap() {
   const cookieQuery = await getCookieQuery();
   // MAYBE prompt on API request error?
   // TODO cache cookie/tiles(?) on browser/remotely(?)
@@ -46,15 +46,40 @@ async function addGlobal() {
   });
 }
 
+async function getRoutesLayer() {
+  const routes = await getRoutes();
+  return L.layerGroup(
+    routes.map(r => L.polyline(L.PolylineUtil.decode(r.map.summary_polyline, 5), {
+      color: "DarkViolet",
+    }))
+  );
+}
+
 async function main() {
   const map = L.map("mapid");
 
-  L.tileLayer("https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}", {
-    attribution:
-      '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    apikey: "0f3c9240e36c48ce9085a96d693d6ab6",
-    maxZoom: 22,
-  }).addTo(map);
+  const cycleLayer = L.tileLayer(
+    "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
+    {
+      attribution:
+        '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      apikey: "0f3c9240e36c48ce9085a96d693d6ab6",
+      maxZoom: 22,
+    }
+  );
+
+  const globalHeatmap = await getGlobalHeatmap();
+  const routesLayer = await getRoutesLayer();
+
+  // Add every layer to map, and to controls
+  const baseMaps = {
+    "Thunderforest Cycle": cycleLayer.addTo(map),
+  };
+  const overlayMaps = {
+    "Global Heatmap": globalHeatmap.addTo(map),
+    "Routes": routesLayer.addTo(map),
+  };
+  L.control.layers(baseMaps, overlayMaps).addTo(map);
 
   if (DEV_ENV) {
     map.setView({lon: -122.53, lat: 38.03}, 16);
@@ -63,12 +88,6 @@ async function main() {
   }
 
   L.control.scale().addTo(map);
-
-  const stravaToken = await getStravaToken();
-  const activities = await getActivities();
-
-  const strava = await addGlobal();
-  strava.addTo(map);
 }
 
 async function errorDialog(error) {
