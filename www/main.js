@@ -47,9 +47,10 @@ async function addGlobalHeatmap(layerControl) {
   layerControl.addOverlay(layer.addTo(map), "Global Heatmap");
 }
 
-async function getRoutesLayer() {
+async function addRoutesLayer(layerControl) {
   const routes = await getRoutes();
-  return L.layerGroup(routes.map(getRoutePolyline));
+  const layer = L.layerGroup(routes.map(getRoutePolyline));
+  layerControl.addOverlay(layer.addTo(map), "Routes");
 }
 
 function getRoutePolyline(route) {
@@ -114,7 +115,6 @@ async function main() {
     }
   );
 
-  const routesLayer = await getRoutesLayer();
   const notesLayer = getLazyNotesLayer();
 
   // Add defaults layer to map directly
@@ -122,11 +122,11 @@ async function main() {
     "Thunderforest Cycle": cycleLayer.addTo(map),
   };
   const overlayMaps = {
-    "Routes": routesLayer.addTo(map),
     "OSM Notes": notesLayer,
   };
   const layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-  const pending = addGlobalHeatmap(layerControl);
+  addGlobalHeatmap(layerControl);
+  addRoutesLayer(layerControl);
 
   if (DEV_ENV) {
     map.setView({lon: -122.53, lat: 38.03}, 16);
@@ -135,8 +135,6 @@ async function main() {
   }
 
   L.control.scale().addTo(map);
-
-  await pending;
 }
 
 async function errorDialog(error) {
