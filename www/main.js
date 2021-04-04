@@ -66,6 +66,39 @@ function getRoutePolyline(route) {
   });
 }
 
+function getLazyNotesLayer() {
+  const layer = L.geoJSON();
+  layer.on("add", fillNotes);
+  return layer;
+}
+
+async function fillNotes(e) {
+  const layer = e.target;
+  if (layer.getLayers().length) return;
+
+  const geoJSON = await getNotes();
+  layer.addData(geoJSON);
+
+  const icon = new L.Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
+  layer.eachLayer(m => m.setIcon(icon));
+
+  layer.on("click", noteOnClick);
+}
+
+function noteOnClick(e) {
+  const marker = e.sourceTarget;
+  const {id} = marker.feature.properties;
+  window.open(`https://www.openstreetmap.org/note/${id}`, "_blank");
+}
+
 let map;
 async function main() {
   map = L.map("mapid");
@@ -82,14 +115,16 @@ async function main() {
 
   const globalHeatmap = await getGlobalHeatmap();
   const routesLayer = await getRoutesLayer();
+  const notesLayer = getLazyNotesLayer();
 
-  // Add every layer to map, and to controls
+  // Add defaults layer to map directly
   const baseMaps = {
     "Thunderforest Cycle": cycleLayer.addTo(map),
   };
   const overlayMaps = {
     "Global Heatmap": globalHeatmap.addTo(map),
     "Routes": routesLayer.addTo(map),
+    "OSM Notes": notesLayer,
   };
   L.control.layers(baseMaps, overlayMaps).addTo(map);
 

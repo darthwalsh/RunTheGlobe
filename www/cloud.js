@@ -76,8 +76,8 @@ async function getRoutes() {
       per_page,
     });
     const url = "https://www.strava.com/api/v3/athlete/routes?" + query;
-    
-    console.log('Fetching routes from strava API. Page', page);
+
+    console.log("Fetching routes from strava API. Page", page);
     const req = await fetch(url, {
       headers: {"Authorization": `Bearer ${token}`},
     });
@@ -88,6 +88,18 @@ async function getRoutes() {
     }
   }
   return routes;
+}
+
+async function getNotes() {
+  const display_name = "carlwalsh"; //TODO user pick, persist to firestore
+  const query = new URLSearchParams({
+    closed: 0,
+    display_name,
+  });
+  const url = "https://api.openstreetmap.org/api/0.6/notes/search.json?" + query;
+  console.log("Fetching notes from OSM API...");
+  const req = await fetch(url);
+  return await req.json();
 }
 
 async function getStoredCookie() {
@@ -160,6 +172,7 @@ async function tokenExchange(body) {
     headers: {"Content-Type": "application/json"},
   };
 
+  console.log("Exchanging Strava auth token...");
   const proxy = await fetch(TOKEN_EXCHANGE_URL, options);
   return await proxy.json();
 }
