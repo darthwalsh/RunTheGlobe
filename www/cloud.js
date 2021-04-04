@@ -112,8 +112,8 @@ async function getStoredCookie() {
   const [last, cookie, extra] = data.stravaCookie.split(":");
   if (!last || !cookie || !Number(last) || extra) return;
 
-  const lastweek = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  if (Number(last) < lastweek) return;
+  const lastWeek = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  if (Number(last) < lastWeek) return;
 
   return cookie;
 }

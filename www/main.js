@@ -32,7 +32,7 @@ function create(parent, name, attributes = {}) {
   return node;
 }
 
-async function getGlobalHeatmap() {
+async function addGlobalHeatmap(layerControl) {
   const cookieQuery = await getCookieQuery();
   // MAYBE prompt on API request error?
   // TODO cache cookie/tiles(?) on browser/remotely(?)
@@ -40,10 +40,11 @@ async function getGlobalHeatmap() {
   const heatmapUrl =
     "https://heatmap-external-{s}.strava.com/tiles-auth/run/bluered/{z}/{x}/{y}.png?" + cookieQuery;
 
-  return L.tileLayer(heatmapUrl, {
+  const layer = L.tileLayer(heatmapUrl, {
     maxNativeZoom: 15,
     maxZoom: 22,
   });
+  layerControl.addOverlay(layer.addTo(map), "Global Heatmap");
 }
 
 async function getRoutesLayer() {
@@ -113,7 +114,6 @@ async function main() {
     }
   );
 
-  const globalHeatmap = await getGlobalHeatmap();
   const routesLayer = await getRoutesLayer();
   const notesLayer = getLazyNotesLayer();
 
@@ -122,11 +122,11 @@ async function main() {
     "Thunderforest Cycle": cycleLayer.addTo(map),
   };
   const overlayMaps = {
-    "Global Heatmap": globalHeatmap.addTo(map),
     "Routes": routesLayer.addTo(map),
     "OSM Notes": notesLayer,
   };
-  L.control.layers(baseMaps, overlayMaps).addTo(map);
+  const layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+  const pending = addGlobalHeatmap(layerControl);
 
   if (DEV_ENV) {
     map.setView({lon: -122.53, lat: 38.03}, 16);
@@ -135,6 +135,8 @@ async function main() {
   }
 
   L.control.scale().addTo(map);
+
+  await pending;
 }
 
 async function errorDialog(error) {
