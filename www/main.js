@@ -131,7 +131,11 @@ async function main() {
   if (DEV_ENV) {
     map.setView({lon: -122.53, lat: 38.03}, 16);
   } else {
-    map.locate({setView: true, maxZoom: 16});
+    const locateOptions = {
+      enableHighAccuracy: true,
+      maxZoom: 16,
+    };
+    map.addControl(L.control.locate({locateOptions}));
   }
 
   L.control.scale().addTo(map);
