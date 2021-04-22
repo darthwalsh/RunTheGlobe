@@ -32,7 +32,3 @@ Needed for strava auth, which won't redirect to a `file://` URL
     python -m http.server
 
 Some shortcuts are made when running on a dev environment. Go to URL http://localhost:8000/?PROD_ENV to skip the shortcuts.
-
-### Cleanup
-
-Delete `gs://webfiles-rtg-carlwa/`
