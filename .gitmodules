@@ -1,0 +1,3 @@
+[submodule "StravaSharp"]
+	path = StravaSharp
+	url = https://github.com/gabornemeth/StravaSharp.git
