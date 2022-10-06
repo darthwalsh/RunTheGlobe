@@ -16,8 +16,8 @@ namespace RunTheGlobe
 
     // View these from https://tools.geofabrik.de/map/#14/38.0286/-122.5240&type=Geofabrik_Standard&grid=1
     const int ZOOM = 14;
-    const int CENTER_X = 2615;
-    const int CENTER_Y = 6318;
+    const int CENTER_X = 2614;
+    const int CENTER_Y = 6315;
 
     static async Task Main(string[] args)
     {
