@@ -46,12 +46,12 @@ namespace RunTheGlobe
 
       Console.WriteLine($"Wrote PNGs to {rtg}");
 
-      // using var gsutil = Process.Start(new ProcessStartInfo{
-      //   FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
-      //   Arguments = $"-h \"Cache-Control: no-cache\" cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
-      //   UseShellExecute = false,
-      // })  ?? throw new ArgumentNullException();
-      // await gsutil.WaitForExitAsync();
+      using var gsutil = Process.Start(new ProcessStartInfo{
+        FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
+        Arguments = $"-h \"Cache-Control: no-cache\" cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
+        UseShellExecute = false,
+      })  ?? throw new ArgumentNullException();
+      await gsutil.WaitForExitAsync();
     }
   }
 

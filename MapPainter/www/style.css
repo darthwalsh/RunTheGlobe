@@ -1,11 +1,6 @@
 body {
-/*   font-family: monospace; */
-  position: fixed;
+  font-family: monospace;
   margin: 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 
 header {
@@ -20,11 +15,7 @@ h1 {
   font-size: 200%;
 }
 
-#mapid {
-  height: 100%;
-}
-
-/* #topright > img {
+#topright > img {
   right: 0;
   height: 3em;
   filter: invert(82%) sepia(14%) saturate(17%) hue-rotate(314deg) brightness(94%) contrast(87%);
@@ -38,4 +29,4 @@ h1 {
   -webkit-mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
   mask-image: url(https://storage.googleapis.com/webfiles-rtg-carlwa/progressMask.png);
   filter: hue-rotate(255deg);
-} */
+}
