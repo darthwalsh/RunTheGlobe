@@ -14,25 +14,29 @@ namespace RunTheGlobe
     public static HttpClient client = new HttpClient();
     public static readonly string rtg = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rtg");
 
+    // View these from https://tools.geofabrik.de/map/#14/38.0286/-122.5240&type=Geofabrik_Standard&grid=1
+    const int ZOOM = 14;
+    const int CENTER_X = 2615;
+    const int CENTER_Y = 6318;
+
     static async Task Main(string[] args)
     {
-      const int zoom = 14;
 
       // await ActivityDownloader.Run(new DateTime(2022, 8, 15));
 
       var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
 
-      await new HeatmapDownloader(new ConsoleCookies()).LoadAround(2615, 6318, zoom);
+      await new HeatmapDownloader(new ConsoleCookies()).LoadAround(CENTER_X, CENTER_Y, ZOOM);
 
-      using var combined = Drawer.CombineTiles(2614, 6317, 2617, 6320, zoom);
+      using var combined = Drawer.CombineTiles(CENTER_X - 1, CENTER_Y - 1, CENTER_X + 2, CENTER_Y + 2, ZOOM);
       combined.Save(Path.Combine(rtg, "combinedTiles.png"));
 
       using Graphics gfx = Graphics.FromImage(combined);
       gfx.Clear(Color.Transparent);
 
       foreach (var a in activities) {
-        var points = GeoDecoder.GetPoints(a, 2614, 6317, zoom, 512);
+        var points = GeoDecoder.GetPoints(a, CENTER_X - 1, CENTER_Y - 1, ZOOM, 512);
         if (points.Any()) {
           Drawer.DrawPath(combined, points);
         }
