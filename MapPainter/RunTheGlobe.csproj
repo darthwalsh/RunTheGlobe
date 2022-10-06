@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Polyliner.Net" Version="1.0.2" />
-    <PackageReference Include="StravaSharp" Version="0.5.5" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StravaSharp\src\StravaSharp\StravaSharp.csproj" />
   </ItemGroup>
 
 </Project>

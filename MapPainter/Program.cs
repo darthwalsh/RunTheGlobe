@@ -18,7 +18,7 @@ namespace RunTheGlobe
     {
       const int zoom = 14;
 
-      await ActivityDownloader.Run(new DateTime(2021, 1, 28));
+      // await ActivityDownloader.Run(new DateTime(2022, 8, 15));
 
       var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
@@ -42,12 +42,12 @@ namespace RunTheGlobe
 
       Console.WriteLine($"Wrote PNGs to {rtg}");
 
-      using var gsutil = Process.Start(new ProcessStartInfo{
-        FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
-        Arguments = $"-h \"Cache-Control: no-cache\" cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
-        UseShellExecute = false,
-      })  ?? throw new ArgumentNullException();
-      await gsutil.WaitForExitAsync();
+      // using var gsutil = Process.Start(new ProcessStartInfo{
+      //   FileName = @"C:\Users\cwalsh\scoop\shims\gsutil.cmd",
+      //   Arguments = $"-h \"Cache-Control: no-cache\" cp {Path.Combine(rtg, "*.png")} gs://webfiles-rtg-carlwa",
+      //   UseShellExecute = false,
+      // })  ?? throw new ArgumentNullException();
+      // await gsutil.WaitForExitAsync();
     }
   }
 

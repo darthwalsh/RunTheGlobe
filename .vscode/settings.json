@@ -3,5 +3,8 @@
     "heatmap",
     "latlng",
     "runtheglobe"
-  ]
+  ],
+  "files.exclude": {
+    "StravaSharp/**": true
+  }
 }
