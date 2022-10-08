@@ -23,3 +23,14 @@ Uploading heatmap:
 ```shell
 cd \.rtg\db; gsutil cp -r tiles gs://webfiles-rtg-carlwa/
 ```
+
+## Roadmap
+
+- [ ] Use own OAuth tokens for Strava API calls
+- [ ] Fix double "Downloading" message
+- [ ] Try color overlay so walked white heatmap becomes different color than unwalked
+- [ ] Try different colors for "Areas I want to explore" like yellow or pink
+- [ ] Make mask from OSM walkable paths
+- [ ] Make overlay for Private roads, maybe big red radious with white slashes (like no trespassing)
+- [ ] Make masks with circles around home
+- [ ] Make masks with isocrones from walkable paths (very cool if this could smoothly scale from i.e. 1 to 5 miles)

@@ -22,7 +22,7 @@ namespace RunTheGlobe
     static async Task Main(string[] args)
     {
 
-      // await ActivityDownloader.Run(new DateTime(2022, 8, 15));
+      await ActivityDownloader.Run(new DateTime(2022, 9, 15));
 
       var activities = FileDatabase.GetPolylines().Select(FileDatabase.GetPolyline).Cast<string>().ToList();
       Console.Error.WriteLine($"Got {activities.Count} activities.");
