@@ -34,8 +34,8 @@ function create(parent, name, attributes = {}) {
 
 async function addGlobalHeatmap(layerControl) {
   const cookieQuery = await getCookieQuery();
+  // TODO allow cancelling the dialog
   // MAYBE prompt on API request error?
-  // TODO cache cookie/tiles(?) on browser/remotely(?)
 
   const heatmapUrl =
     "https://heatmap-external-{s}.strava.com/tiles-auth/run/bluered/{z}/{x}/{y}.png?" + cookieQuery;
@@ -135,7 +135,14 @@ async function main() {
       enableHighAccuracy: true,
       maxZoom: 16,
     };
-    map.addControl(L.control.locate({locateOptions}));
+    // Want to use keepCurrentZoomLevel, but combinging with .start() causes a weird error (?)
+    const locateControl = L.control.locate({
+      setView: 'untilPan',
+      initialZoomLevel: 16,
+      locateOptions
+    });
+    map.addControl(locateControl);
+    locateControl.start();
   }
 
   L.control.scale().addTo(map);
