@@ -34,7 +34,7 @@ function create(parent, name, attributes = {}) {
 
 async function addGlobalHeatmap(layerControl) {
   const cookieQuery = await getCookieQuery();
-  // TODO allow cancelling the dialog
+  if (!cookieQuery) return;
   // MAYBE prompt on API request error?
 
   const heatmapUrl =

@@ -102,6 +102,7 @@ async function getNotes() {
   return await req.json();
 }
 
+/** @returns {Promise<string|void>} */
 async function getStoredCookie() {
   const userDoc = await getUserDoc();
   const userSnapshot = await userDoc.get();
@@ -119,49 +120,57 @@ async function getStoredCookie() {
 }
 
 // TODO need an account delete function for firebase strava data
+/** @returns {Promise<string|void>} */
 async function getCookieQuery() {
   let cookieQuery = await getStoredCookie();
-  if (!cookieQuery) {
-    /** @type {HTMLDialogElement} */
-    const dialog = create(document.body, "dialog");
-    dialog.append("Go to ");
-    const a = create(dialog, "a", {href: "https://www.strava.com/heatmap", target: "_blank"});
-    a.textContent = "strava.com/heatmap";
-    dialog.append(
-      ", open browser devtools, capture a PNG network request, find Cookie request header, paste below:"
-    );
-    create(dialog, "br");
+  if (cookieQuery) return cookieQuery;
 
-    /** @type {HTMLInputElement} */
-    const input = create(dialog, "input");
-    input.placeholder = "ajs_user_id=...";
+  /** @type {HTMLDialogElement} */
+  const dialog = create(document.body, "dialog");
+  dialog.append("Go to ");
+  const a = create(dialog, "a", {href: "https://www.strava.com/heatmap", target: "_blank"});
+  a.textContent = "strava.com/heatmap";
+  dialog.append(
+    ", open browser devtools, capture a PNG network request, find Cookie request header, paste below:"
+  );
+  create(dialog, "br");
 
-    const button = create(dialog, "button");
-    button.textContent = "Submit";
+  /** @type {HTMLInputElement} */
+  const input = create(dialog, "input");
+  input.placeholder = "ajs_user_id=...";
 
-    const promise = new Promise(res => {
-      button.onclick = _ => {
-        dialog.close();
-        res(input.value);
-      };
-    });
+  const button = create(dialog, "button");
+  button.textContent = "Submit";
+  const cancelButton = create(dialog, "button");
+  cancelButton.textContent = "Cancel";
 
-    dialog.showModal();
-    /** @type {string} */
-    const cookie = await promise;
+  const promise = new Promise(res => {
+    button.onclick = _ => {
+      dialog.close();
+      res(input.value);
+    };
+    cancelButton.onclick = _ => {
+      dialog.close();
+      res('');
+    };
+  });
 
-    const withoutColon = cookie.split(": ").pop();
+  dialog.showModal();
+  /** @type {string} */
+  const cookie = await promise;
+  if (!cookie) return;
 
-    const prefix = "CloudFront-";
-    cookieQuery = withoutColon
-      .split("; ")
-      .filter(s => s.startsWith(prefix))
-      .map(s => s.substr(prefix.length))
-      .join("&");
+  const withoutColon = cookie.split(": ").pop();
 
-    const userDoc = await getUserDoc();
-    userDoc.update({stravaCookie: `${Date.now()}:${cookieQuery}`});
-  }
+  const prefix = "CloudFront-";
+  cookieQuery = withoutColon
+    .split("; ")
+    .filter(s => s.startsWith(prefix))
+    .map(s => s.substr(prefix.length))
+    .join("&");
+
+  const userDoc = await getUserDoc();
+  userDoc.update({stravaCookie: `${Date.now()}:${cookieQuery}`});
   return cookieQuery;
 }
 
