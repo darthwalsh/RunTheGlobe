@@ -170,17 +170,35 @@ function noteOnClick(e) {
   window.open(`https://www.openstreetmap.org/note/${id}`, "_blank");
 }
 
-let map;
-async function main() {
-  map = L.map("mapid");
-
+function createLayers() {
+  const maxZoom = 22;
   const cycleLayer = L.tileLayer(
     "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
     {
       attribution:
         '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       apikey: "0f3c9240e36c48ce9085a96d693d6ab6",
-      maxZoom: 22,
+      maxZoom,
+    }
+  );
+
+  const osmLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap",
+    maxZoom,
+    maxNativeZoom: 19,
+  });
+
+  const mapbox = L.tileLayer(
+    "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/{z}/{x}/{y}?access_token={apikey}",
+    {
+      attribution:
+        '© <a href="https://www.mapbox.com/feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      apikey:
+        "pk.eyJ1IjoiY2FybHdhbHNoIiwiYSI6ImNrajZ0cW45eTZiNG4ydnBkdHpiMnZ1ZDIifQ.E3p4TqqxCzMsjj5Uxxf4tg",
+      tileSize: 512,
+      zoomOffset: -1,
+      maxZoom,
+      maxNativeZoom: 22,
     }
   );
 
@@ -189,6 +207,8 @@ async function main() {
   // Add defaults layer to map directly
   const baseMaps = {
     "Thunderforest Cycle": cycleLayer.addTo(map),
+    "OpenStreetMaps": osmLayer,
+    "Mapbox Outdoors": mapbox,
   };
   const overlayMaps = {
     "OSM Notes": notesLayer,
@@ -197,6 +217,14 @@ async function main() {
   addGlobalHeatmap(layerControl);
   addNoWalkLayer(layerControl);
   addRoutesLayer(layerControl);
+
+}
+
+let map;
+async function main() {
+  map = L.map("mapid");
+
+  createLayers();
 
   if (DEV_ENV) {
     map.setView({lon: -122.55, lat: 38.08}, 16);
@@ -240,5 +268,4 @@ if (urlQuery.has("error") || urlQuery.has("code")) {
   main();
 }
 
-// MAYBE add strava as an optional layer, wait to prompt?
-// MAYBE optional MapBox Outdoors. It has fences mapped
+// TODO persist optional layer state, so strava routes can be not-added
