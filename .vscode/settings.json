@@ -1,7 +1,15 @@
 {
   "cSpell.words": [
+    "apikey",
+    "bbox",
+    "Csvg",
+    "gcloud",
     "heatmap",
     "latlng",
-    "runtheglobe"
+    "mapid",
+    "noids",
+    "runtheglobe",
+    "secretmanager",
+    "Thunderforest"
   ]
 }
