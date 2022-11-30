@@ -181,6 +181,7 @@ function createLayers() {
       maxZoom,
     }
   );
+  //TODO another choice https://www.thunderforest.com/maps/outdoors/
 
   const osmLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap",
