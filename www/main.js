@@ -56,7 +56,8 @@ async function addNoWalkLayer(layerControl) {
   const query = `(
     (
       nwr[access~"no|private"][foot!~"yes"]({{bbox}});
-      nwr[foot="private"]({{bbox}});
+      nwr[foot~"no|private"]({{bbox}});
+      nwr[highway~"motorway|motorway_link|bus_guideway|trunk_link"]({{bbox}});
     );
     - nwr[leisure="swimming_pool"]({{bbox}});
   );
