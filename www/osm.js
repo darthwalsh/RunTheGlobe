@@ -1,6 +1,4 @@
-
-
-async function addOSM(layerControl, name, query, color) {
+function addOSM(layerControl, name, color, query) {
   // language docs: https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
   // By default, ways are a list of nodeID. Instead build a minimal geometry:
   //   `out ids noids;` gives *only* the object type.
@@ -8,7 +6,7 @@ async function addOSM(layerControl, name, query, color) {
   // Interactive query testing: https://overpass-turbo.eu/
 
   var layer = new L.OverPassLayer({
-    query,
+    query: `${query} out ids noids geom;`,
     onSuccess: function (data) {
       for (const e of data.elements) {
         switch (e.type) {
@@ -60,31 +58,23 @@ async function addOSM(layerControl, name, query, color) {
   layerControl.addOverlay(layer.addTo(map), name);
 }
 
-
-async function addNoWalkLayer(layerControl) {
-  const query = `(
+function addOSMlayers(layerControl) {
+  addOSM(layerControl, "NoWalk", "red", `(
     (
       nwr[access~"no|private"][foot!~"yes"]({{bbox}});
       nwr[foot~"no|private"]({{bbox}});
       nwr[highway~"motorway|motorway_link|bus_guideway|trunk_link"]({{bbox}});
     );
     - nwr[leisure="swimming_pool"]({{bbox}});
-  );
-  out ids noids geom;`;
-  addOSM(layerControl, "NoWalk", query, "red");
-}
+  );`);
 
-async function addWaterLayer(layerControl) {
-  const query = `(
-    node["amenity"="drinking_water"]({{bbox}});
-  );
-  out ids noids geom;`;
-  addOSM(layerControl, "Drinking", query, "blue");
-}
+  addOSM(layerControl, "CarefulWalk", "goldenrod", `(
+    way[sidewalk=no]({{bbox}});
+    nwr[amenity=school]({{bbox}});
+  );`);
 
-async function addOSMlayers(layerControl) {
-  addNoWalkLayer(layerControl);
-  addWaterLayer(layerControl);
+  addOSM(layerControl, "Drinking", "blue", `
+    node["amenity"="drinking_water"]({{bbox}});`);
 }
 
 // TODO Add FixMe with  "nwr[fixme]({{bbox}});out qt;"
