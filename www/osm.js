@@ -61,7 +61,7 @@ function addOSM(layerControl, name, color, query) {
 function addOSMlayers(layerControl) {
   addOSM(layerControl, "NoWalk", "red", `(
     (
-      nwr[access~"no|private"][foot!~"yes"]({{bbox}});
+      nwr[access~"no|private"][foot!~"yes|designated|permissive"]({{bbox}});
       nwr[foot~"no|private"]({{bbox}});
       nwr[highway~"motorway|motorway_link|bus_guideway|trunk_link"]({{bbox}});
     );
