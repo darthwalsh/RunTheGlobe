@@ -97,8 +97,23 @@ async function fillNotes(e) {
 
 function noteOnClick(e) {
   const marker = e.sourceTarget;
-  const {id} = marker.feature.properties;
-  window.open(`https://www.openstreetmap.org/note/${id}`, "_blank");
+  const {id, comments} = marker.feature.properties;
+
+  const div = document.createElement("div");
+  const a = create(div, "a", {
+    href: `https://www.openstreetmap.org/note/${id}`,
+    target: "_blank",
+  });
+  a.textContent = "Open OpenStreetMap";
+
+  if (comments) {
+    for (const comment of comments) {
+      const li = create(div, "p");
+      li.textContent = comment.user + ": " + comment.text;
+    }
+  }
+
+  map.openPopup(L.popup().setLatLng(e.latlng).setContent(div));
 }
 
 function createLayers() {
