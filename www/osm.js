@@ -5,7 +5,7 @@ function addOSM(layerControl, name, color, query) {
   //   `geom` includes {lat, lon} on way nodes
   // Interactive query testing: https://overpass-turbo.eu/
 
-  var layer = new L.OverPassLayer({
+  const layer = new L.OverPassLayer({
     query: `${query} out ids noids geom;`,
     onSuccess: function (data) {
       for (const e of data.elements) {
@@ -59,23 +59,118 @@ function addOSM(layerControl, name, color, query) {
 }
 
 function addOSMlayers(layerControl) {
-  addOSM(layerControl, "NoWalk", "red", `(
+  addOSM(
+    layerControl,
+    "NoWalk",
+    "red",
+    `(
     (
       nwr[access~"no|private"][foot!~"yes|designated|permissive"]({{bbox}});
       nwr[foot~"no|private"]({{bbox}});
       nwr[highway~"motorway|motorway_link|bus_guideway|trunk_link"]({{bbox}});
     );
     - nwr[leisure="swimming_pool"]({{bbox}});
-  );`);
+  );`
+  );
 
-  addOSM(layerControl, "CarefulWalk", "goldenrod", `(
+  addOSM(
+    layerControl,
+    "CarefulWalk",
+    "goldenrod",
+    `(
     way[sidewalk=no]({{bbox}});
     nwr[amenity=school]({{bbox}});
-  );`);
+  );`
+  );
 
-  addOSM(layerControl, "Drinking", "blue", `
-    node["amenity"="drinking_water"]({{bbox}});`);
+  addOSM(
+    layerControl,
+    "Drinking",
+    "blue",
+    `
+    node["amenity"="drinking_water"]({{bbox}});`
+  );
+
+
+  addFIXMElayers(layerControl);
 }
 
-// TODO Add FixMe with  "nwr[fixme]({{bbox}});out qt;"
+async function addFIXMElayers(layerControl) {
+  const name = "MyFIXME";
+  const username = await getOSMusername();
+  // Only returns nodes that most-recently were edited by me:
+  //   https://gis.stackexchange.com/a/160521/173754
+  const query = `
+    nwr(user:"${username}")[fixme]({{bbox}});
+    out tags geom;`;
+
+  const layer = new L.OverPassLayer({
+    query,
+    onSuccess: function (data) {
+      for (const e of data.elements) {
+        const {fixme} = e.tags;
+        const color = fixme == "continues" ? "grey" : "black";
+
+        let point = null;
+        switch (e.type) {
+          case "node":
+            point = e;
+            this._markers.addLayer(
+              L.circle(e, {
+                radius: 4,
+                weight: 10,
+                color,
+                fillOpacity: 0.5,
+              })
+            );
+            break;
+          case "way":
+            point = e.geometry[Math.floor(e.geometry.length / 2)];
+            this._markers.addLayer(
+              L.polyline(e.geometry, {
+                weight: 7,
+                color,
+                fillOpacity: 0.5,
+              })
+            );
+            break;
+          case "relation":
+            // MAYBE include this but it's complicated and not very useful
+            // Would need to to average "bounds": { "minlat": 38.0639337, ...
+            // Can't query center (conflicts with geom), but that would probably be right here
+            break;
+          default:
+            console.warn("Overpass unexpected type!", e.type);
+        }
+        if (!point || !fixme) continue;
+
+        const marker = makeMarker(e, point, fixme, color);
+        this._markers.addLayer(marker);
+      }
+    },
+  });
+
+  layerControl.addOverlay(layer.addTo(map), name);
+}
+
+function makeMarker(e, point, fixme, color) {
+  const icon = makeIcon(color);
+  const {id, type} = e;
+  return L.marker(point, {icon}).on("click", _ => {
+    const div = document.createElement("div");
+    const a = create(div, "a", {
+      href: `https://www.openstreetmap.org/${type}/${id}`,
+      target: "_blank",
+    });
+    a.textContent = "Open OpenStreetMap";
+
+    const fixmeP = create(div, "p");
+    fixmeP.textContent = 'FIXME!';
+
+    const fixP = create(div, "p");
+    fixP.textContent = fixme;
+
+    map.openPopup(L.popup().setLatLng(point).setContent(div));
+  });
+}
 

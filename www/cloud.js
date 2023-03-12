@@ -90,8 +90,12 @@ async function getRoutes() {
   return routes;
 }
 
+async function getOSMusername() {
+  return "carlwalsh"; //TODO user can set in a config dialog, persist to firestore
+}
+
 async function getNotes() {
-  const display_name = "carlwalsh"; //TODO user pick, persist to firestore
+  const display_name = await getOSMusername();
   const query = new URLSearchParams({
     closed: 0,
     display_name,

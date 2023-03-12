@@ -81,15 +81,7 @@ async function fillNotes(e) {
   const geoJSON = await getNotes();
   layer.addData(geoJSON);
 
-  const icon = new L.Icon({
-    iconUrl:
-      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
+  const icon = makeIcon();
   layer.eachLayer(m => m.setIcon(icon));
 
   layer.on("click", noteOnClick);
@@ -108,8 +100,8 @@ function noteOnClick(e) {
 
   if (comments) {
     for (const comment of comments) {
-      const li = create(div, "p");
-      li.textContent = comment.user + ": " + comment.text;
+      const p = create(div, "p");
+      p.textContent = comment.user + ": " + comment.text;
     }
   }
 
