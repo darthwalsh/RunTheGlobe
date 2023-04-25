@@ -109,7 +109,7 @@ async function addFIXMElayers(layerControl) {
     onSuccess: function (data) {
       for (const e of data.elements) {
         const {fixme} = e.tags;
-        const color = fixme == "continues" ? "grey" : "black";
+        const color = fixme.startsWith("continue") ? "grey" : "black"; // continues, continued...
 
         let point = null;
         switch (e.type) {
