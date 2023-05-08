@@ -2,7 +2,7 @@
 
 RunTheGlobe is an in-progress web app that tries to make it easier to explore cool running locations.
 
-Try it at http://run.carlwa.com/
+Try it at https://run.carlwa.com/
 
 Functionality:
 

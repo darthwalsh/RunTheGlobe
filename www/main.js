@@ -114,7 +114,7 @@ function createLayers() {
     "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
     {
       attribution:
-        '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        '&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       apikey: "0f3c9240e36c48ce9085a96d693d6ab6",
       maxZoom,
     }
@@ -131,7 +131,7 @@ function createLayers() {
     "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/{z}/{x}/{y}?access_token={apikey}",
     {
       attribution:
-        '© <a href="https://www.mapbox.com/feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        '© <a href="https://www.mapbox.com/feedback/">Mapbox</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       apikey:
         "pk.eyJ1IjoiY2FybHdhbHNoIiwiYSI6ImNrajZ0cW45eTZiNG4ydnBkdHpiMnZ1ZDIifQ.E3p4TqqxCzMsjj5Uxxf4tg",
       tileSize: 512,
