@@ -112,15 +112,11 @@ async function getStoredCookie() {
   const userSnapshot = await userDoc.get();
   if (!userSnapshot.exists) return;
   const data = userSnapshot.data();
-  if (!data.stravaCookie) return;
+  if (!data.stravaCookie || typeof data.stravaCookie !== "object") return; // v1 stravaCookie was string
 
-  const [last, cookie, extra] = data.stravaCookie.split(":");
-  if (!last || !cookie || !Number(last) || extra) return;
-
-  const lastWeek = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  if (Number(last) < lastWeek) return;
-
-  return cookie;
+  const {expires, cookieQuery} = data.stravaCookie;
+  if (expires < Date.now()) return;
+  return cookieQuery;
 }
 
 // TODO need an account delete function for firebase strava data
@@ -155,7 +151,7 @@ async function getCookieQuery() {
     };
     cancelButton.onclick = _ => {
       dialog.close();
-      res('');
+      res("");
     };
   });
 
@@ -170,12 +166,33 @@ async function getCookieQuery() {
   cookieQuery = withoutColon
     .split("; ")
     .filter(s => s.startsWith(prefix))
-    .map(s => s.substr(prefix.length))
+    .map(s => s.substring(prefix.length))
     .join("&");
 
   const userDoc = await getUserDoc();
-  userDoc.update({stravaCookie: `${Date.now()}:${cookieQuery}`});
+
+  const expires = getExpiration(cookieQuery);
+  userDoc.update({stravaCookie: {cookieQuery, expires}});
   return cookieQuery;
+}
+
+/** @return {Number} timestamp in ms */
+function getExpiration(query) {
+  try {
+    const policy = new URLSearchParams(query).get("Policy");
+    if (!policy) return;
+    const base64 = policy.replace("_", "="); // https://stackoverflow.com/a/76310519/771768
+    const o = JSON.parse(atob(base64));
+    const statement = o.Statement[0];
+    const dateLessThan = statement.Condition.DateLessThan["AWS:EpochTime"];
+    const expiration = dateLessThan * 1000;
+    console.info("Strava cookie expiration", new Date(expiration));
+    return expiration;
+  } catch (error) {
+    // MAYBE show the success/error in the modal dialog, or in some toast?
+    console.warn("Error parsing strava cookie expiration Policy", error);
+    return Date.now() + 7 * 24 * 60 * 60 * 1000;
+  }
 }
 
 async function tokenExchange(body) {
