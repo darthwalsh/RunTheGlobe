@@ -91,6 +91,60 @@ function addOSMlayers(layerControl) {
     node["amenity"="drinking_water"]({{bbox}});`
   );
 
+  // TODO make this layer lazy. Maybe have a couple global functions using some global reference to layerControl: addOverlay vs addOverlayLazy
+  addOSM(
+    layerControl,
+    "NamedRunnable",
+    "cyan",
+    `
+    way['name']
+      ['highway']
+      ['highway' !~ 'bridleway']
+      ['highway' !~ 'bus_guideway']
+      ['highway' !~ 'bus_stop']
+      ['highway' !~ 'busway']
+      ['highway' !~ 'construction']
+      ['highway' !~ 'corridor']
+      ['highway' !~ 'cycleway']
+      ['highway' !~ 'elevator']
+      ['highway' !~ 'escape']
+      ['highway' !~ 'footway']
+      ['highway' !~ 'motorway']
+      ['highway' !~ 'motorway_junction']
+      ['highway' !~ 'motorway_link']
+      ['highway' !~ 'path']
+      ['highway' !~ 'platform']
+      ['highway' !~ 'proposed']
+      ['highway' !~ 'raceway']
+      ['highway' !~ 'razed']
+      ['highway' !~ 'rest_area']
+      ['highway' !~ 'services']
+      ['highway' !~ 'steps']
+      ['highway' !~ 'trunk']
+      ['access' !~ 'customers']
+      ['access' !~ 'no']
+      ['access' !~ 'private']
+      ['aeroway' !~ 'jet_bridge']
+      ['amenity' !~ 'weighbridge']
+      ['expressway' !~ 'yes']
+      ['fee' !~ 'yes']
+      ['foot' !~ 'no']
+      ['indoor' !~ 'area']
+      ['indoor' !~ 'column']
+      ['indoor' !~ 'corridor']
+      ['indoor' !~ 'door']
+      ['indoor' !~ 'level']
+      ['indoor' !~ 'room']
+      ['indoor' !~ 'wall']
+      ['indoor' !~ 'yes']
+      ['public_transport' !~ 'platform']
+      ['razed' !~ 'highway']
+      ['service' !~ 'drive-through']
+      ['service' !~ 'driveway']
+      ['service' !~ 'parking_aisle']
+      ['toll' !~ 'yes']
+      ({{bbox}});`
+  );
 
   addFIXMElayers(layerControl);
 }

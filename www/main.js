@@ -68,6 +68,7 @@ function getRoutePolyline(route) {
   });
 }
 
+// TODO shouldn't be lazy
 function getLazyNotesLayer() {
   const layer = L.geoJSON();
   layer.on("add", fillNotes);
