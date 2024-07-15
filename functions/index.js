@@ -3,7 +3,6 @@ const functions = require("firebase-functions");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const fetch = require("node-fetch");
 
 admin.initializeApp();
 
@@ -22,6 +21,8 @@ app.use(cors());
 
 app.post("/", async (req, res) => {
   try {
+    console.log("Request body", req.body);
+
     const [accessResponse] = await secretVersion;
     const clientSecret = accessResponse.payload.data.toString("utf8");
 
@@ -31,9 +32,11 @@ app.post("/", async (req, res) => {
     };
 
     if (req.body.code) {
+      console.log("Logging in");
       body.code = req.body.code;
       body.grant_type = "authorization_code";
     } else if (req.body.refresh_token) {
+      console.log("Refreshing");
       body.refresh_token = req.body.refresh_token;
       body.grant_type = "refresh_token";
     } else {
