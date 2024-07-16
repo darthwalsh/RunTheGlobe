@@ -11,9 +11,15 @@ const secretManagerClient = new SecretManagerServiceClient();
 
 const CLIENT_ID = "57923";
 
-const secretVersion = secretManagerClient.accessSecretVersion({
-  name: "projects/runtheglobe/secrets/strava-client-secret/versions/latest",
-});
+let secretVersion;
+function getSecret() {
+  if (!secretVersion) {
+    secretVersion = secretManagerClient.accessSecretVersion({
+      name: "projects/runtheglobe/secrets/strava-client-secret/versions/latest",
+    });
+  }
+  return secretVersion;
+}
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,7 +29,7 @@ app.post("/", async (req, res) => {
   try {
     console.log("Request body", req.body);
 
-    const [accessResponse] = await secretVersion;
+    const [accessResponse] = await getSecret();
     const clientSecret = accessResponse.payload.data.toString("utf8");
 
     const body = {
