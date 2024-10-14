@@ -32,3 +32,12 @@ Needed for strava auth, which won't redirect to a `file://` URL
     python -m http.server
 
 Some shortcuts are made when running on a dev environment. Go to URL http://localhost:8000/?PROD_ENV to skip the shortcuts.
+
+## Roadmap
+- [ ] Improved Strava Routes view
+	- [ ] Sort runs by expected-finish-time
+	- [ ] MAYBE, configure a finish-time like 8:30AM and scroll down the routes list to routes that would finish at that time if started now
+- [ ] Layers
+	- [ ] Add new layer based on Parcel Layer
+	- [ ] Add satellite map view
+- [ ] Triage issues in https://github.com/darthwalsh/RunTheGlobe/issues
