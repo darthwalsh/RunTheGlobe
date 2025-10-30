@@ -33,6 +33,9 @@ Needed for strava auth, which won't redirect to a `file://` URL
 
 Some shortcuts are made when running on a dev environment. Go to URL http://localhost:8000/?PROD_ENV to skip the shortcuts.
 
+## Original Design
+![plan](docs/plan.jpg)
+
 ## Roadmap
 - [ ] Improved Strava Routes view
 	- [ ] Sort runs by expected-finish-time

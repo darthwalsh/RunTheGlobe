@@ -1,7 +1,6 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions/v1");
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 
 admin.initializeApp();
@@ -22,7 +21,7 @@ function getSecret() {
 }
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 
 app.post("/", async (req, res) => {
